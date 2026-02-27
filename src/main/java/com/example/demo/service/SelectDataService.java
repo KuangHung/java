@@ -13,4 +13,12 @@ public class SelectDataService {
             throw new Exception("Not found User!");
         }
     }
+
+    public void loadData(String username) {
+        System.out.println("載入使用者資料: " + username);
+    }
+
+    public void deleteData(String username) {
+        System.out.println("刪除使用者資料: " + username);
+    }
 }
