@@ -58,7 +58,14 @@
 			<plugin>
 				<groupId>org.jacoco</groupId>
 				<artifactId>jacoco-maven-plugin</artifactId>
-				<version>0.8.11</version> <executions>
+				<version>0.8.11</version>
+<!--				<configuration>-->
+<!--					<excludes>-->
+<!--						<exclude>com/example/demo/object/**</exclude>-->
+<!--						<exclude>com/example/demo/DemoApplication.class</exclude>-->
+<!--					</excludes>-->
+<!--				</configuration>-->
+				<executions>
 				<execution>
 					<id>prepare-agent</id>
 					<goals>
@@ -72,7 +79,7 @@
 						<goal>report</goal>
 					</goals>
 				</execution>
-			</executions>
+				</executions>
 			</plugin>
 		</plugins>
 	</build>
