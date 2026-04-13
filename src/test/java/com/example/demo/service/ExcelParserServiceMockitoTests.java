@@ -34,7 +34,7 @@ public class ExcelParserServiceMockitoTests {
 			// 4. Assert 驗證結果
 			Assertions.assertNotNull(resultList, "解析結果不應為 null");
 			Assertions.assertFalse(resultList.isEmpty(), "解析出來的清單不應為空");
-			Assertions.assertEquals(3, resultList.size(), "解析結果應該要有2筆資料");
+			Assertions.assertEquals(2, resultList.size(), "解析結果應該要有2筆資料");
 			// 確認 Excel 資料與預期相符
 			UserExcelDto row1 = resultList.get(0);
 			Assertions.assertEquals("User1", row1.getName(), "第一筆姓名字段錯誤");
