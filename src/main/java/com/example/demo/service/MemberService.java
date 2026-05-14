@@ -1,11 +1,13 @@
 package com.example.demo.service;
 
 import com.example.demo.entity.MemberEntity;
+import com.example.demo.object.MemberInfoDto;
 import com.example.demo.repository.MemberRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -50,5 +52,23 @@ public class MemberService {
         if (memberRepository.existsById(id)) {
             memberRepository.deleteById(id);
         }
+    }
+
+    // 【查】關鍵字模糊搜尋會員
+    public List<MemberEntity> searchMembers(String keyword) {
+        if (keyword == null || keyword.trim().isEmpty()) {
+            return new ArrayList<>();
+        }
+        return memberRepository.searchMembers(keyword);
+    }
+
+    // 【查】找出今天註冊的活躍會員
+    public List<MemberEntity> getTodayActiveMembers() {
+        return memberRepository.findTodayActiveMembers();
+    }
+
+    // 【查】查詢指定狀態的帳號
+    public List<MemberInfoDto> findMemberInfosByStatus(Integer status) {
+        return memberRepository.findMemberInfosByStatus(status);
     }
 }

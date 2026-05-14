@@ -2,6 +2,7 @@ package com.example.demo.controller;
 
 import com.example.demo.entity.MemberEntity;
 import com.example.demo.object.MemberDto;
+import com.example.demo.object.MemberInfoDto;
 import com.example.demo.service.MemberService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -91,5 +92,32 @@ public class MemberController {
 
         // 刪除成功且不回傳任何內容時，標準應回傳 204 No Content
         return ResponseEntity.noContent().build();
+    }
+
+    // --- 6. 【查】關鍵字搜尋會員 ---
+    @GetMapping("/search")
+    public ResponseEntity<List<MemberResponseDTO>> searchMembers(@RequestParam(required = false) String keyword) {
+        List<MemberResponseDTO> dtoList = memberService.searchMembers(keyword)
+                .stream()
+                .map(MemberResponseDTO::fromEntity)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(dtoList);
+    }
+
+    // --- 7. 【查】找出今天註冊的活躍會員 ---
+    @GetMapping("/getTodayActiveMembers")
+    public ResponseEntity<List<MemberResponseDTO>> getTodayActiveMembers() {
+        List<MemberResponseDTO> dtoList = memberService.getTodayActiveMembers()
+                .stream()
+                .map(MemberResponseDTO::fromEntity)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(dtoList);
+    }
+
+    // --- 8. 【查】查詢指定狀態的帳號 ---
+    @GetMapping("/findMemberInfosByStatus")
+    public ResponseEntity<List<MemberInfoDto>> findMemberInfosByStatus(@RequestParam(required = false) Integer status) {
+        List<MemberInfoDto> dtoList = memberService.findMemberInfosByStatus(status);
+        return ResponseEntity.ok(dtoList);
     }
 }
