@@ -1,8 +1,11 @@
 package com.example.demo.service;
 
 import com.example.demo.entity.MemberEntity;
+import com.example.demo.entity.OrdersEntity;
 import com.example.demo.object.MemberInfoDto;
+import com.example.demo.object.MemberSpendingDto;
 import com.example.demo.repository.MemberRepository;
+import com.example.demo.repository.OrdersRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,6 +19,8 @@ public class MemberService {
 
     @Autowired
     private MemberRepository memberRepository;
+    @Autowired
+    private OrdersRepository ordersRepository;
 
     // 1. 【增】新增一筆資料
     public MemberEntity createMember(MemberEntity member) {
@@ -70,5 +75,38 @@ public class MemberService {
     // 【查】查詢指定狀態的帳號
     public List<MemberInfoDto> findMemberInfosByStatus(Integer status) {
         return memberRepository.findMemberInfosByStatus(status);
+    }
+
+    // 【查】查詢所有會員花費的金額
+    public List<MemberSpendingDto> findBadAllMembersTotalSpending() {
+        System.out.println("--- 開始執行 N+1 查詢範例 ---");
+
+        // 1. 第一次查詢：取得所有會員列表 (這就是 "1" 查詢)
+        List<MemberEntity> allMembers = memberRepository.findAll();
+        System.out.println("已取得 " + allMembers.size() + " 位會員");
+
+        List<MemberSpendingDto> results = new ArrayList<>();
+
+        // 2. 遍歷所有會員，為每位會員單獨計算總額
+        for (MemberEntity member : allMembers) {
+            // 3. 【危險！】為每一位會員，都發起一次資料庫查詢來取得他的訂單 (這就是 "+N" 查詢)
+            List<OrdersEntity> ordersForMember = ordersRepository.findByMember(member);
+
+            // 4. 在 Java 記憶體中計算訂單總額
+            long totalAmount = ordersForMember.stream()
+                    .mapToLong(OrdersEntity::getTotalAmount)
+                    .sum();
+
+            // 5. 建立 DTO 並加入結果列表
+            results.add(new MemberSpendingDto(member.getId(), member.getNickname(), member.getNickname(), totalAmount));
+        }
+
+        System.out.println("--- N+1 查詢結束 ---");
+        return results;
+    }
+
+    // 【查】查詢所有會員花費的金額
+    public List<MemberSpendingDto> findAllMembersTotalSpending() {
+        return memberRepository.findAllMembersTotalSpending();
     }
 }

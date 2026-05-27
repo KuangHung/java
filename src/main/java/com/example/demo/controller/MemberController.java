@@ -3,6 +3,7 @@ package com.example.demo.controller;
 import com.example.demo.entity.MemberEntity;
 import com.example.demo.object.MemberDto;
 import com.example.demo.object.MemberInfoDto;
+import com.example.demo.object.MemberSpendingDto;
 import com.example.demo.service.MemberService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -119,5 +120,17 @@ public class MemberController {
     public ResponseEntity<List<MemberInfoDto>> findMemberInfosByStatus(@RequestParam(required = false) Integer status) {
         List<MemberInfoDto> dtoList = memberService.findMemberInfosByStatus(status);
         return ResponseEntity.ok(dtoList);
+    }
+
+    // 【錯誤示範】查詢所有會員花費的金額
+    @GetMapping("/findBadAllMembersTotalSpending")
+    public ResponseEntity<List<MemberSpendingDto>> findBadAllMembersTotalSpending() {
+        return ResponseEntity.ok(memberService.findBadAllMembersTotalSpending());
+    }
+
+    // 【正確示範】查詢所有會員花費的金額
+    @GetMapping("/findAllMembersTotalSpending")
+    public ResponseEntity<List<MemberSpendingDto>> findAllMembersTotalSpending() {
+        return ResponseEntity.ok(memberService.findAllMembersTotalSpending());
     }
 }
