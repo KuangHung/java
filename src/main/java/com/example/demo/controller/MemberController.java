@@ -133,4 +133,20 @@ public class MemberController {
     public ResponseEntity<List<MemberSpendingDto>> findAllMembersTotalSpending() {
         return ResponseEntity.ok(memberService.findAllMembersTotalSpending());
     }
+
+    // 【正確示範】正常更新會員暱稱的 API，這裡只是為了示範 PUT 的使用，實際上應該要有更嚴謹的驗證和錯誤處理
+    @PutMapping("/updateMemberName")
+    public ResponseEntity<String> updateMemberName(@RequestBody MemberDto updateMember) {
+        memberService.updateMemberName(updateMember);
+
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Success");
+    }
+
+    // 【錯誤示範】無法更新會員暱稱的 API ，這裡只是為了示範 PUT 的使用，實際上應該要有更嚴謹的驗證和錯誤處理
+    @PutMapping("/updateFailMemberName")
+    public ResponseEntity<String> updateFailMemberName(@RequestBody MemberDto updateMember) {
+        memberService.updateFailMemberName(updateMember);
+
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Success");
+    }
 }

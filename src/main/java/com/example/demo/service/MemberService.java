@@ -2,6 +2,7 @@ package com.example.demo.service;
 
 import com.example.demo.entity.MemberEntity;
 import com.example.demo.entity.OrdersEntity;
+import com.example.demo.object.MemberDto;
 import com.example.demo.object.MemberInfoDto;
 import com.example.demo.object.MemberSpendingDto;
 import com.example.demo.repository.MemberRepository;
@@ -108,5 +109,26 @@ public class MemberService {
     // 【查】查詢所有會員花費的金額
     public List<MemberSpendingDto> findAllMembersTotalSpending() {
         return memberRepository.findAllMembersTotalSpending();
+    }
+
+    @Transactional // 關鍵：開啟交易，確保 EntityManager 持續監控
+    public void updateMemberName(MemberDto updateMember) {
+        // 1. 撈出資料，此時 member 進入【Managed (託管)】狀態
+        MemberEntity member = memberRepository.findById(updateMember.getId()).get();
+
+        // 2. 修改屬性。EntityManager 會默默記下這個改變
+        member.setNickname(updateMember.getNickname());
+
+        // 3. 方法結束，Transaction 準備 Commit。
+        // JPA 發現物件跟剛撈出來時不一樣 (Dirty)，自動發出 UPDATE SQL。
+        // 完全不需要呼叫 memberRepository.save(member)！
+    }
+
+    public void updateFailMemberName(MemberDto updateMember) {
+        // 1. 因為沒有 @Transactional，撈出資料後 session 立刻關閉
+        MemberEntity member = memberRepository.findById(updateMember.getId()).get();
+
+        // 2. 這裡不管怎麼 set，資料庫都不會更新，因為 EntityManager 已經不管它了！
+        member.setNickname(updateMember.getNickname());
     }
 }
