@@ -1,6 +1,7 @@
 package com.example.demo.controller;
 
 import com.example.demo.entity.MemberEntity;
+import com.example.demo.exceptions;
 import com.example.demo.object.MemberDto;
 import com.example.demo.object.MemberInfoDto;
 import com.example.demo.object.MemberSpendingDto;
@@ -146,6 +147,27 @@ public class MemberController {
     @PutMapping("/updateFailMemberName")
     public ResponseEntity<String> updateFailMemberName(@RequestBody MemberDto updateMember) {
         memberService.updateFailMemberName(updateMember);
+
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Success");
+    }
+
+    @PostMapping("/placeOrderWithoutTransaction")
+    public ResponseEntity<String> placeOrderWithoutTransaction(@RequestBody MemberDto updateMember) {
+        memberService.placeOrderWithoutTransaction(updateMember.getId(), updateMember.getAmount());
+
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Success");
+    }
+
+    @PostMapping("/placeOrderWithDefaultTransactional")
+    public ResponseEntity<String> placeOrderWithDefaultTransactional(@RequestBody MemberDto updateMember) throws exceptions.InvalidOrderAmountException {
+        memberService.placeOrderWithDefaultTransactional(updateMember.getId(), updateMember.getAmount());
+
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Success");
+    }
+
+    @PostMapping("/placeOrderTheRightWay")
+    public ResponseEntity<String> placeOrderTheRightWay(@RequestBody MemberDto updateMember) throws exceptions.InvalidOrderAmountException {
+        memberService.placeOrderTheRightWay(updateMember.getId(), updateMember.getAmount());
 
         return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Success");
     }

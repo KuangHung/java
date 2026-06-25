@@ -16,6 +16,8 @@ public class MemberDto {
 
     private LocalDateTime updatedAt;
 
+    private int amount;
+
     // JPA 規範需要一個無參數建構子
     public MemberDto() {}
 
@@ -73,5 +75,13 @@ public class MemberDto {
 
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public int getAmount() {
+        return amount;
+    }
+
+    public void setAmount(int amount) {
+        this.amount = amount;
     }
 }

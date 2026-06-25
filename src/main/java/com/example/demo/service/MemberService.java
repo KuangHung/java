@@ -2,6 +2,7 @@ package com.example.demo.service;
 
 import com.example.demo.entity.MemberEntity;
 import com.example.demo.entity.OrdersEntity;
+import com.example.demo.exceptions;
 import com.example.demo.object.MemberDto;
 import com.example.demo.object.MemberInfoDto;
 import com.example.demo.object.MemberSpendingDto;
@@ -130,5 +131,80 @@ public class MemberService {
 
         // 2. 這裡不管怎麼 set，資料庫都不會更新，因為 EntityManager 已經不管它了！
         member.setNickname(updateMember.getNickname());
+    }
+
+    public void placeOrderWithoutTransaction(Long memberId, int amount) {
+        // 步驟 1: 查詢會員
+        MemberEntity member = memberRepository.findById(memberId).orElseThrow(() -> new RuntimeException("找不到會員: " + memberId));
+
+        // 步驟 2: 建立並儲存訂單 (第一個資料庫寫入)
+        OrdersEntity order = new OrdersEntity();
+        order.setMember(member);
+        order.setTotalAmount(amount);
+        order.setOrderNumber("ORD-" + System.currentTimeMillis());
+        ordersRepository.save(order);
+        System.out.println("訂單已成功儲存到資料庫！訂單 ID: " + order.getId());
+
+        // 步驟 3: 故意在此處拋出一個執行階段錯誤，模擬程式發生意外
+        if (true) {
+            System.out.println("糟糕！程式發生了無法預期的錯誤！");
+            throw new RuntimeException("模擬一個意料之外的系統錯誤");
+        }
+
+        // 步驟 4: 更新會員狀態為 VIP (這段程式碼永遠不會被執行到)
+        member.setStatus(2); // 2 = VIP
+        memberRepository.save(member);
+        System.out.println("會員狀態已更新");
+    }
+
+    @Transactional
+    public void placeOrderWithDefaultTransactional(Long memberId, int amount) throws exceptions.InvalidOrderAmountException {
+        System.out.println("--- 案例二：執行有 @Transactional 但不回滾的操作 ---");
+
+        MemberEntity member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new RuntimeException("找不到會員: " + memberId));
+
+        OrdersEntity order = new OrdersEntity();
+        order.setMember(member);
+        order.setTotalAmount(amount);
+        order.setOrderNumber("ORD-" + System.currentTimeMillis());
+        ordersRepository.save(order);
+        System.out.println("訂單已暫存 (尚未提交)");
+
+        // 模擬一個業務邏輯上的錯誤，例如訂單金額無效
+        if (amount < 0) {
+            System.out.println("業務邏輯錯誤：訂單金額無效，拋出受檢例外！");
+            // InvalidOrderAmountException 是一個繼承自 Exception 的受檢例外
+            throw new exceptions.InvalidOrderAmountException("訂單金額不可為負數");
+        }
+
+        // 假設金額正確，繼續執行
+        member.setStatus(2);
+        memberRepository.save(member);
+        System.out.println("會員狀態已更新 (尚未提交)");
+    }
+
+    @Transactional(rollbackFor = Exception.class) // 關鍵！告訴 Spring 任何 Exception 都要回滾
+    public void placeOrderTheRightWay(Long memberId, int amount) throws exceptions.InvalidOrderAmountException {
+        System.out.println("--- 案例三：執行有明確回滾規則的操作 ---");
+
+        MemberEntity member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new RuntimeException("找不到會員: " + memberId));
+
+        OrdersEntity order = new OrdersEntity();
+        order.setMember(member);
+        order.setTotalAmount(amount);
+        order.setOrderNumber("ORD-" + System.currentTimeMillis());
+        ordersRepository.save(order);
+        System.out.println("✅ 訂單已暫存 (尚未提交)");
+
+        if (amount < 0) {
+            System.out.println("🛑 業務邏輯錯誤：訂單金額無效，拋出受檢例外！");
+            throw new exceptions.InvalidOrderAmountException("訂單金額不可為負數");
+        }
+
+        member.setStatus(2);
+        memberRepository.save(member);
+        System.out.println("會員狀態已更新 (尚未提交)");
     }
 }
